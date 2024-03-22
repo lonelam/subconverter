@@ -122,7 +122,7 @@ struct Proxy
     uint32_t RecvWindow;
     tribool DisableMtuDiscovery;
     uint32_t HopInterval;
-    String Alpn;
+    StringArray Alpn;
 
     uint32_t CWND = 0;
 };
