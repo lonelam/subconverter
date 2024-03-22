@@ -178,7 +178,7 @@ void hysteriaConstruct(
     node.RecvWindow = to_int(recv_window);
     node.DisableMtuDiscovery = disable_mtu_discovery;
     node.HopInterval = to_int(hop_interval);
-    node.Alpn = alpn;
+    node.Alpn = StringArray {alpn};
 }
 
 void hysteria2Construct(Proxy &node, const std::string &group, const std::string &remarks, const std::string &server, const std::string &port,const std::string &up, const std::string &down, const std::string &password, const std::string &obfs, const std::string &obfs_password, const std::string &sni, const std::string &fingerprint, const std::string &alpn, const std::string &ca, const std::string &ca_str, const std::string &cwnd, tribool tfo, tribool scv) {
@@ -190,7 +190,7 @@ void hysteria2Construct(Proxy &node, const std::string &group, const std::string
     node.OBFSParam = obfs_password;
     node.SNI = sni;
     node.Fingerprint = fingerprint;
-    node.Alpn = alpn;
+    node.Alpn = StringArray {alpn};
     node.Ca = ca;
     node.CaStr = ca_str;
     node.CWND = to_int(cwnd);
@@ -1489,7 +1489,7 @@ void explodeStdHysteria2(std::string hysteria2, Proxy &node) {
     if (remarks.empty())
         remarks = add + ":" + port;
 
-    hysteria2Construct(node, HYSTERIA2_DEFAULT_GROUP, remarks, add, port, up, down, password, obfs, obfs_password, sni, fingerprint, "", "", "", "", tribool(), scv);
+    hysteria2Construct(node, HYSTERIA2_DEFAULT_GROUP, remarks, add, port, up, down, password, obfs, obfs_password, sni, fingerprint, {""}, "", "", "", tribool(), scv);
     return;
 }
 

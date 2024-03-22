@@ -2346,7 +2346,7 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
                 if (!x.Alpn.empty())
                 {
                     rapidjson::Value alpn(rapidjson::kArrayType);
-                    alpn.PushBack(rapidjson::StringRef(x.Alpn.c_str()), allocator);
+                    alpn.PushBack(rapidjson::StringRef(x.Alpn[0].c_str()), allocator);
                     tls.AddMember("alpn", alpn, allocator);
                 }
                 if (!x.Ca.empty())
@@ -2384,7 +2384,7 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
                 if (!x.Alpn.empty())
                 {
                     rapidjson::Value alpn(rapidjson::kArrayType);
-                    alpn.PushBack(rapidjson::StringRef(x.Alpn.c_str()), allocator);
+                    alpn.PushBack(rapidjson::StringRef(x.Alpn[0].c_str()), allocator);
                     tls.AddMember("alpn", alpn, allocator);
                 }
                 if (!x.Ca.empty())
