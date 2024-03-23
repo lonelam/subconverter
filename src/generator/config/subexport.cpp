@@ -2317,9 +2317,9 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
             {
                 addSingBoxCommonMembers(proxy, x, "hysteria", allocator);
                 if (!x.Up.empty())
-                    proxy.AddMember("up", rapidjson::StringRef(x.Up.c_str()), allocator);
+                    proxy.AddMember("up_mbps", x.UpSpeed, allocator);
                 if (!x.Down.empty())
-                    proxy.AddMember("down", rapidjson::StringRef(x.Down.c_str()), allocator);
+                    proxy.AddMember("down_mbps", x.DownSpeed, allocator);
                 if (!x.OBFS.empty())
                 {
                     proxy.AddMember("obfs", rapidjson::StringRef(x.OBFS.c_str()), allocator);
