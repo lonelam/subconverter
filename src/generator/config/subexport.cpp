@@ -910,7 +910,7 @@ std::string proxyToSurge(std::vector<Proxy> &nodes, const std::string &base_conf
             ini.set(real_section, "peer", "(" + generatePeer(x) + ")");
             break;
         case ProxyType::Hysteria2:
-            if(surge_ver < 5)
+            if(surge_ver < 4)
                 continue;
             proxy = "hysteria, " + hostname + ", " + port + ", password=" + password;
             if(x.DownSpeed)
@@ -2227,7 +2227,6 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
         udp.define(x.UDP);
         tfo.define(x.TCPFastOpen);
         scv.define(x.AllowInsecure);
-
         rapidjson::Value proxy(rapidjson::kObjectType);
         switch (x.Type)
         {
@@ -2329,8 +2328,9 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
                 if (!x.AuthStr.empty())
                 {
                     proxy.AddMember("auth_str", rapidjson::StringRef(x.AuthStr.c_str()), allocator);
-                    std::string auth_str = base64Encode(x.AuthStr);
-                    proxy.AddMember("auth",rapidjson::StringRef(auth_str.c_str()), allocator);
+                    rapidjson::Value auth_str;
+                    auth_str.SetString(base64Encode(x.AuthStr).c_str(), allocator);
+                    proxy.AddMember("auth", auth_str, allocator);
                 }
                 if (x.RecvWindowConn)
                     proxy.AddMember("recv_window_conn", x.RecvWindowConn, allocator);
@@ -2351,8 +2351,9 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
                 }
                 if (!x.Ca.empty())
                 {
-                    std::string ca_str = fileGet(x.Ca);
-                    tls.AddMember("certificate", rapidjson::StringRef(ca_str.c_str()), allocator);
+                    rapidjson::Value ca_str;
+                    ca_str.SetString(fileGet(x.Ca).c_str(), allocator);
+                    tls.AddMember("certificate", ca_str, allocator);
                 }
                 if (!x.CaStr.empty())
                     tls.AddMember("certificate", rapidjson::StringRef(x.CaStr.c_str()), allocator);
@@ -2389,8 +2390,9 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
                 }
                 if (!x.Ca.empty())
                 {
-                    std::string ca_str = fileGet(x.Ca);
-                    tls.AddMember("certificate", rapidjson::StringRef(ca_str.c_str()), allocator);
+                    rapidjson::Value ca_str(rapidjson::kStringType);
+                    ca_str.SetString(fileGet(x.Ca).c_str(), allocator);
+                    tls.AddMember("certificate", ca_str, allocator);
                 }
                 if (!x.CaStr.empty())
                     tls.AddMember("certificate", rapidjson::StringRef(x.CaStr.c_str()), allocator);
