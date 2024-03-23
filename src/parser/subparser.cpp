@@ -162,9 +162,21 @@ void hysteriaConstruct(
     node.Ports = ports;
     node.Protocol = protocol;
     node.OBFSParam = obfs_protocol;
-    node.Up = up;
+    if (!up.empty())
+    {
+        if (up.length() > 4 && up.find("bps") == up.length() - 3)
+            node.Up = up;
+        else if (to_int(up))
+            node.Up = up + " Mbps";
+    }
     node.UpSpeed = to_int(up_speed);
-    node.Down = down;
+    if (!down.empty())
+    {
+        if (down.length() > 4 && down.find("bps") == down.length() - 3)
+            node.Down = down;
+        else if (to_int(down))
+            node.Down = down + " Mbps";
+    }
     node.DownSpeed = to_int(down_speed);
     node.AuthStr = auth_str;
     if (!auth.empty())
