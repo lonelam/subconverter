@@ -1282,7 +1282,10 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             singleproxy["obfs"] >>= obfs;
             singleproxy["sni"] >>= sni;
             singleproxy["fingerprint"] >>= fingerprint;
-            singleproxy["alpn"] >>= alpn;
+            if (singleproxy["alpn"].IsSequence())
+                singleproxy["alpn"][0] >>= alpn;
+            else
+                singleproxy["alpn"] >>= alpn;
             singleproxy["ca"] >>= ca;
             singleproxy["ca-str"] >>= ca_str;
             singleproxy["recv-window-conn"] >>= recv_window_conn;
@@ -1305,7 +1308,10 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             singleproxy["obfs-password"] >>= obfs_password;
             singleproxy["sni"] >>= sni;
             singleproxy["fingerprint"] >>= fingerprint;
-            singleproxy["alpn"] >>= alpn;
+            if (singleproxy["alpn"].IsSequence())
+                singleproxy["alpn"][0] >>= alpn;
+            else
+                singleproxy["alpn"] >>= alpn;
             singleproxy["ca"] >>= ca;
             singleproxy["ca-str"] >>= ca_str;
             singleproxy["cwnd"] >>= cwnd;
