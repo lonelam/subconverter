@@ -615,6 +615,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
         *status_code = 400;
         return "No nodes were found!";
     }
+
     if(!subInfo.empty() && argAppendUserinfo.get(global.appendUserinfo))
         response.headers.emplace("Subscription-UserInfo", subInfo);
 
@@ -684,6 +685,8 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
 
     //do pre-process now
     preprocessNodes(nodes, ext);
+
+    prependProxyDirectRuleset(lRulesetContent, nodes);
 
     /*
     //insert node info to template
@@ -1475,4 +1478,30 @@ std::string renderTemplate(RESPONSE_CALLBACK_ARGS)
         writeLog(0, "Render completed.", LOG_LEVEL_INFO);
 
     return output_content;
+}
+
+
+void prependProxyDirectRuleset(std::vector<RulesetContent> &rca, std::vector<Proxy> & nodes) {
+    RulesetContent rc;
+    rc = {
+        "DIRECT",
+        "",
+        "",
+        RULESET_SURGE,
+        std::async(std::launch::async, [=](){
+            std::string contents;
+            for (auto &x : nodes) {
+                if (isIPv6(x.Hostname)) {
+                    contents += "IP-CIDR6," + x.Hostname + "/128,no-resolve\n";
+                } else if (isIPv4(x.Hostname)) {
+                    contents += "IP-CIDR," + x.Hostname + "/32,no-resolve\n";
+                } else {
+                    contents += "DOMAIN," + x.Hostname + "\n";
+                }
+            }
+            return contents;
+        }),
+        0
+    };
+    rca.insert(rca.begin(), std::move(rc));
 }
