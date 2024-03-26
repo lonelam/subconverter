@@ -1,5 +1,11 @@
 # subconverter
 
+补了点自用的小feature
+
+## extra features
+- 支持hysteria/hysteria2
+- 为订阅节点生成一条DIRECT的规则，防止多个代理工具嵌套时加密流量因为配置错误被意外转发
+
 Utility to convert between various proxy subscription formats.
 
 [![Build Status](https://github.com/tindy2013/subconverter/actions/workflows/build.yml/badge.svg)](https://github.com/tindy2013/subconverter/actions)
