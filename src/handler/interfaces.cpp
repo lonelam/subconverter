@@ -3,7 +3,6 @@
 #include <mutex>
 #include <numeric>
 
-#include <inja.hpp>
 #include <yaml-cpp/yaml.h>
 
 #include "config/binding.h"
@@ -11,7 +10,6 @@
 #include "generator/config/ruleconvert.h"
 #include "generator/config/subexport.h"
 #include "generator/template/templates.h"
-#include "script/cron.h"
 #include "script/script_quickjs.h"
 #include "server/webserver.h"
 #include "utils/base64/base64.h"
@@ -24,9 +22,7 @@
 #include "utils/string.h"
 #include "utils/string_hash.h"
 #include "utils/system.h"
-#include "utils/system.h"
 #include "utils/urlencode.h"
-#include "utils/yamlcpp_extra.h"
 #include "interfaces.h"
 #include "multithread.h"
 #include "settings.h"
@@ -65,6 +61,7 @@ const std::vector<UAProfile> UAMatchList = {
     {"ClashForAndroid","","","clash",false},
     {"ClashforWindows","\\/([0-9.]+)","0.11","clash",true},
     {"ClashforWindows","","","clash",false},
+    {"clash-verge","","","clash",true},
     {"ClashX Pro","","","clash",true},
     {"ClashX","\\/([0-9.]+)","0.13","clash",true},
     {"Clash","","","clash",true},
@@ -414,6 +411,7 @@ std::string subconverter(RESPONSE_CALLBACK_ARGS)
         argExpandRulesets.define(true);
 
     ext.clash_proxies_style = global.clashProxiesStyle;
+    ext.clash_proxy_groups_style = global.clashProxyGroupsStyle;
 
     /// read preference from argument, assign global var if not in argument
     ext.tfo.define(argTFO).define(global.TFOFlag);
@@ -932,7 +930,7 @@ std::string simpleToClashR(RESPONSE_CALLBACK_ARGS)
         return "Please insert your subscription link instead of clicking the default link.";
     }
     request.argument.emplace("target", "clashr");
-    request.argument.emplace("url", urlEncode(url));
+    request.argument.emplace("url", url);
     return subconverter(request, response);
 }
 
@@ -1075,6 +1073,7 @@ std::string surgeConfToClash(RESPONSE_CALLBACK_ARGS)
     ext.skip_cert_verify = global.skipCertVerify;
     ext.tls13 = global.TLS13Flag;
     ext.clash_proxies_style = global.clashProxiesStyle;
+    ext.clash_proxy_groups_style = global.clashProxyGroupsStyle;
 
     ProxyGroupConfigs dummy_groups;
     proxyToClash(nodes, clash, dummy_groups, false, ext);
@@ -1366,10 +1365,10 @@ int simpleGenerator()
 
     string_multimap allItems;
     std::string proxy = parseProxy(global.proxySubscription);
-    Request request;
-    Response response;
     for(std::string &x : sections)
     {
+        Request request;
+        Response response;
         response.status_code = 200;
         //std::cerr<<"Generating artifact '"<<x<<"'...\n";
         writeLog(0, "Generating artifact '" + x + "'...", LOG_LEVEL_INFO);
@@ -1385,7 +1384,7 @@ int simpleGenerator()
         if(ini.item_exist("profile"))
         {
             profile = ini.get("profile");
-            request.argument.emplace("name", urlEncode(profile));
+            request.argument.emplace("name", profile);
             request.argument.emplace("token", global.accessToken);
             request.argument.emplace("expand", "true");
             content = getProfile(request, response);

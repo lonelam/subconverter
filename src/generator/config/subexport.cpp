@@ -234,18 +234,30 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
     std::vector<Proxy> nodelist;
     string_array remarks_list;
     /// proxies style
-    bool block = false, compact = false;
+    bool proxy_block = false, proxy_compact = false, group_block = false, group_compact = false;
     switch(hash_(ext.clash_proxies_style))
     {
     case "block"_hash:
-        block = true;
+        proxy_block = true;
         break;
     default:
     case "flow"_hash:
         break;
     case "compact"_hash:
-        compact = true;
+        proxy_compact = true;
         break;
+    }
+    switch(hash_(ext.clash_proxy_groups_style))
+    {
+        case "block"_hash:
+            group_block = true;
+            break;
+        default:
+        case "flow"_hash:
+            break;
+        case "compact"_hash:
+            group_compact = true;
+            break;
     }
 
     for(Proxy &x : nodes)
@@ -549,7 +561,7 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         // sees in https://dreamacro.github.io/clash/configuration/outbound.html#snell
         if(udp && x.Type != ProxyType::Snell)
             singleproxy["udp"] = true;
-        if(block)
+        if(proxy_block)
             singleproxy.SetStyle(YAML::EmitterStyle::Block);
         else
             singleproxy.SetStyle(YAML::EmitterStyle::Flow);
@@ -558,7 +570,7 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         nodelist.emplace_back(x);
     }
 
-    if(compact)
+    if(proxy_compact)
         proxies.SetStyle(YAML::EmitterStyle::Flow);
 
     if(ext.nodelist)
@@ -620,7 +632,10 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         }
         if(!filtered_nodelist.empty())
             singlegroup["proxies"] = filtered_nodelist;
-        //singlegroup.SetStyle(YAML::EmitterStyle::Flow);
+        if(group_block)
+            singlegroup.SetStyle(YAML::EmitterStyle::Block);
+        else
+            singlegroup.SetStyle(YAML::EmitterStyle::Flow);
 
         bool replace_flag = false;
         for(auto && original_group : original_groups)
@@ -635,6 +650,9 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         if(!replace_flag)
             original_groups.push_back(singlegroup);
     }
+
+    if(group_compact)
+        original_groups.SetStyle(YAML::EmitterStyle::Flow);
 
     if(ext.clash_new_field_name)
         yamlnode["proxy-groups"] = original_groups;
@@ -1630,7 +1648,7 @@ void proxyToQuanX(std::vector<Proxy> &nodes, INIReader &ini, std::vector<Ruleset
         std::string proxies = join(filtered_nodelist, ", ");
 
         std::string singlegroup = type + "=" + x.Name + ", " + proxies;
-        if(type != "static")
+        if(x.Type != ProxyGroupType::Select && x.Type != ProxyGroupType::SSID)
         {
             singlegroup += ", check-interval=" + std::to_string(x.Interval);
             if(x.Tolerance > 0)
@@ -2424,6 +2442,8 @@ void proxyToSingBox(std::vector<Proxy> &nodes, rapidjson::Document &json, std::v
             tls.AddMember("enabled", true, allocator);
             if (!x.ServerName.empty())
                 tls.AddMember("server_name", rapidjson::StringRef(x.ServerName.c_str()), allocator);
+            else if (!x.Host.empty())
+                tls.AddMember("server_name", rapidjson::StringRef(x.Host.c_str()), allocator);
             tls.AddMember("insecure", buildBooleanValue(scv), allocator);
             proxy.AddMember("tls", tls, allocator);
         }
