@@ -552,6 +552,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
                 singleproxy["ca-str"] = x.CaStr;
             if (x.CWND)
                 singleproxy["cwnd"] = x.CWND;
+            if (!x.Ports.empty())
+                singleproxy["ports"] = x.Ports;
             break;
         default:
             continue;
