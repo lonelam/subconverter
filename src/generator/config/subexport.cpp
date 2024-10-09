@@ -530,6 +530,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             break;
         case ProxyType::Hysteria2:
             singleproxy["type"] = "hysteria2";
+            if (!x.Ports.empty())
+                singleproxy["ports"] = x.Ports;
             if (!x.Up.empty())
                 singleproxy["up"] = x.UpSpeed;
             if (!x.Down.empty())

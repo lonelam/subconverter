@@ -205,8 +205,29 @@ void hysteriaConstruct(
     }
 }
 
-void hysteria2Construct(Proxy &node, const std::string &group, const std::string &remarks, const std::string &server, const std::string &port,const std::string &up, const std::string &down, const std::string &password, const std::string &obfs, const std::string &obfs_password, const std::string &sni, const std::string &fingerprint, const std::string &alpn, const std::string &ca, const std::string &ca_str, const std::string &cwnd, tribool tfo, tribool scv) {
+void hysteria2Construct(
+    Proxy &node, 
+    const std::string &group,
+    const std::string &remarks,
+    const std::string &server,
+    const std::string &port,
+    const std::string &ports,
+    const std::string &up,
+    const std::string &down,
+    const std::string &password,
+    const std::string &obfs,
+    const std::string &obfs_password,
+    const std::string &sni,
+    const std::string &fingerprint,
+    const std::string &alpn,
+    const std::string &ca,
+    const std::string &ca_str,
+    const std::string &cwnd,
+    tribool tfo,
+    tribool scv
+) {
     commonConstruct(node, ProxyType::Hysteria2, group, remarks, server, port, tribool(), tfo, scv, tribool());
+    node.Ports = ports;
     node.UpSpeed = to_int(up);
     node.DownSpeed = to_int(down);
     node.Password = password;
@@ -1320,6 +1341,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             break;
         case "hysteria2"_hash:
             group = HYSTERIA2_DEFAULT_GROUP;
+            singleproxy["ports"] >>= ports;
             singleproxy["up"] >>= up;
             singleproxy["down"] >>= down;
             singleproxy["password"] >>= password;
@@ -1337,7 +1359,7 @@ void explodeClash(Node yamlnode, std::vector<Proxy> &nodes)
             singleproxy["ca-str"] >>= ca_str;
             singleproxy["cwnd"] >>= cwnd;
 
-            hysteria2Construct(node, group, ps, server, port, up, down, password, obfs, obfs_password, sni, fingerprint, alpn, ca, ca_str, cwnd, tfo, scv );
+            hysteria2Construct(node, group, ps, server, port, ports, up, down, password, obfs, obfs_password, sni, fingerprint, alpn, ca, ca_str, cwnd, tfo, scv );
             break;
 
         default:
@@ -1477,7 +1499,7 @@ void explodeKitsunebi(std::string kit, Proxy &node)
 
 
 void explodeStdHysteria2(std::string hysteria2, Proxy &node) {
-    std::string add, port, password, host, insecure, up, down, alpn, obfs, obfs_password, remarks, sni, fingerprint;
+    std::string add, port, ports, password, host, insecure, up, down, alpn, obfs, obfs_password, remarks, sni, fingerprint;
     std::string addition;
     tribool scv;
     hysteria2 = hysteria2.substr(12);
@@ -1511,6 +1533,7 @@ void explodeStdHysteria2(std::string hysteria2, Proxy &node) {
     }
 
     scv = getUrlArg(addition, "insecure");
+    ports = getUrlArg(addition, "ports");
     up = getUrlArg(addition, "up");
     down = getUrlArg(addition, "down");
     // the alpn is not supported officially yet
@@ -1522,7 +1545,7 @@ void explodeStdHysteria2(std::string hysteria2, Proxy &node) {
     if (remarks.empty())
         remarks = add + ":" + port;
 
-    hysteria2Construct(node, HYSTERIA2_DEFAULT_GROUP, remarks, add, port, up, down, password, obfs, obfs_password, sni, fingerprint, "", "", "", "", tribool(), scv);
+    hysteria2Construct(node, HYSTERIA2_DEFAULT_GROUP, remarks, add, port, ports, up, down, password, obfs, obfs_password, sni, fingerprint, "", "", "", "", tribool(), scv);
     return;
 }
 

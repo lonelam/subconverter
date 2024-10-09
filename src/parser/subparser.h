@@ -57,7 +57,27 @@ void hysteriaConstruct(
     tribool scv
 );
 
-void hysteria2Construct(Proxy &node, const std::string &group, const std::string &remarks, const std::string &server, const std::string &port,const std::string &up, const std::string &down, const std::string &password, const std::string &obfs, const std::string &obfs_password, const std::string &sni, const std::string &fingerprint, const string_array &alpn, const std::string &ca, const std::string &caStr, const std::string &cwnd, tribool tfo, tribool scv);
+void hysteria2Construct(
+    Proxy &node,
+    const std::string &group,
+    const std::string &remarks,
+    const std::string &server,
+    const std::string &port,
+    const std::string &ports,
+    const std::string &up,
+    const std::string &down,
+    const std::string &password,
+    const std::string &obfs,
+    const std::string &obfs_password,
+    const std::string &sni,
+    const std::string &fingerprint,
+    const string_array &alpn,
+    const std::string &ca,
+    const std::string &caStr,
+    const std::string &cwnd,
+    tribool tfo,
+    tribool scv
+);
 
 void explodeVmess(std::string vmess, Proxy &node);
 void explodeSSR(std::string ssr, Proxy &node);
