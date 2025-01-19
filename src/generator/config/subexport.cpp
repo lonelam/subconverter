@@ -271,9 +271,9 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
 
         processRemark(x.Remark, remarks_list, false);
 
-        tribool udp = ext.udp;
-        tribool scv = ext.skip_cert_verify;
+        tribool udp = ext.udp, tfo = ext.tfo, scv = ext.skip_cert_verify;
         udp.define(x.UDP);
+        tfo.define(x.TCPFastOpen);
         scv.define(x.AllowInsecure);
 
         singleproxy["name"] = x.Remark;
@@ -563,6 +563,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         // sees in https://dreamacro.github.io/clash/configuration/outbound.html#snell
         if(udp && x.Type != ProxyType::Snell)
             singleproxy["udp"] = true;
+        if(!tfo.is_undef())
+            singleproxy["tfo"] = tfo.get();
         if(proxy_block)
             singleproxy.SetStyle(YAML::EmitterStyle::Block);
         else
@@ -595,7 +597,10 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
         string_array filtered_nodelist;
 
         singlegroup["name"] = x.Name;
-        singlegroup["type"] = x.TypeStr();
+        if (x.Type == ProxyGroupType::Smart)
+            singlegroup["type"] = "url-test";
+        else
+            singlegroup["type"] = x.TypeStr();
 
         switch(x.Type)
         {
@@ -604,6 +609,8 @@ void proxyToClash(std::vector<Proxy> &nodes, YAML::Node &yamlnode, const ProxyGr
             break;
         case ProxyGroupType::LoadBalance:
             singlegroup["strategy"] = x.StrategyStr();
+            [[fallthrough]];
+        case ProxyGroupType::Smart:
             [[fallthrough]];
         case ProxyGroupType::URLTest:
             if(!x.Lazy.is_undef())
@@ -768,7 +775,7 @@ std::string proxyToSurge(std::vector<Proxy> &nodes, const std::string &base_conf
 
         processRemark(x.Remark, remarks_list);
 
-        std::string &hostname = x.Hostname, &username = x.Username, &password = x.Password, &method = x.EncryptMethod, &id = x.UserId, &transproto = x.TransferProtocol, &host = x.Host, &edge = x.Edge, &path = x.Path, &protocol = x.Protocol, &protoparam = x.ProtocolParam, &obfs = x.OBFS, &obfsparam = x.OBFSParam, &plugin = x.Plugin, &pluginopts = x.PluginOption;
+        std::string &hostname = x.Hostname, &username = x.Username, &password = x.Password, &method = x.EncryptMethod, &id = x.UserId, &transproto = x.TransferProtocol, &host = x.Host, &edge = x.Edge, &path = x.Path, &protocol = x.Protocol, &protoparam = x.ProtocolParam, &obfs = x.OBFS, &obfsparam = x.OBFSParam, &plugin = x.Plugin, &pluginopts = x.PluginOption, &underlying_proxy = x.UnderlyingProxy;
         std::string port = std::to_string(x.Port);
         bool &tlssecure = x.TLSSecure;
 
@@ -781,7 +788,9 @@ std::string proxyToSurge(std::vector<Proxy> &nodes, const std::string &base_conf
         std::string proxy, section, real_section;
         string_array args, headers;
 
-        switch(x.Type)
+        std::stringstream ss;
+
+        switch (x.Type)
         {
         case ProxyType::Shadowsocks:
             if(surge_ver >= 3 || surge_ver == -3)
@@ -910,7 +919,8 @@ std::string proxyToSurge(std::vector<Proxy> &nodes, const std::string &base_conf
         case ProxyType::WireGuard:
             if(surge_ver < 4 && surge_ver != -3)
                 continue;
-            section = randomStr(5);
+            ss << std::hex << hash_(x.Remark);
+            section = ss.str().substr(0, 5);
             real_section = "WireGuard " + section;
             proxy = "wireguard, section-name=" + section;
             if(!x.TestUrl.empty())
@@ -952,7 +962,10 @@ std::string proxyToSurge(std::vector<Proxy> &nodes, const std::string &base_conf
         if(!udp.is_undef())
             proxy += ", udp-relay=" + udp.get_str();
 
-        if(ext.nodelist)
+        if (underlying_proxy != "")
+            proxy += ", underlying-proxy=" + underlying_proxy;
+
+        if (ext.nodelist)
             output_nodelist += x.Remark + " = " + proxy + "\n";
         else
         {
@@ -975,6 +988,7 @@ std::string proxyToSurge(std::vector<Proxy> &nodes, const std::string &base_conf
         switch(x.Type)
         {
         case ProxyGroupType::Select:
+        case ProxyGroupType::Smart:
         case ProxyGroupType::URLTest:
         case ProxyGroupType::Fallback:
             break;
