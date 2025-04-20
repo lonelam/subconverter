@@ -1,6 +1,6 @@
 # subconverter
 
-⚠️ 肝了一个rust版, 支持vless等更多新协议，欢迎试用&贡献👉 [Subconverter-Rs](https://github.com/lonelam/subconverter-rs)
+⚠️ 肝了一个rust版, 支持vless等更多新协议，编译成了wasm后可以一键部署前后端到netlify了，欢迎试用&贡献👉 [Subconverter-Rs](https://github.com/lonelam/subconverter-rs)
 
 补了点自用的小feature
 
