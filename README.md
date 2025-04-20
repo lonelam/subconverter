@@ -1,6 +1,6 @@
 # subconverter
 
-⚠️ 尝试转了一个rust版的, 自用支持vless等更多新协议，欢迎试用👉 [Subconverter-Rs](https://github.com/lonelam/subconverter-rs)
+⚠️ 肝了一个rust版, 支持vless等更多新协议，欢迎试用&贡献👉 [Subconverter-Rs](https://github.com/lonelam/subconverter-rs)
 
 补了点自用的小feature
 
